@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aura VPN — Подробная инструкция</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --blue: #38bdf8;
+            --bg: #020617;
+            --glass: rgba(15, 23, 42, 0.8);
+            --border: rgba(56, 189, 248, 0.2);
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        /* Исправление выхода за рамки */
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding-bottom: 50px;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black, transparent 90%);
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .container { 
+            padding: 16px; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            width: 100%;
+        }
+        
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { font-size: 26px; margin: 0; background: linear-gradient(to right, #fff, var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { color: var(--muted); font-size: 14px; margin-top: 8px; }
+
+        .tabs {
+            display: flex;
+            background: var(--glass);
+            padding: 4px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            margin-bottom: 25px;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            width: 100%;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px 2px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--muted);
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+        .tab.active { background: var(--blue); color: #020617; }
+
+        .section { display: none; animation: slideUp 0.4s ease-out; }
+        .section.active { display: block; }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            width: 100%;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .step-badge {
+            flex-shrink: 0;
+            background: var(--blue);
+            color: #020617;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .step-title { font-size: 18px; font-weight: 700; color: var(--blue); }
+
+        /* Кнопки скачивания с эффектом блеска */
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            text-decoration: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            margin-top: 15px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden; /* Важно для эффекта блеска */
+            transition: transform 0.2s;
+        }
+
+        .download-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Эффект блеска (Shine) */
+        .download-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                to right,
+                transparent 0%,
+                rgba(255, 255, 255, 0.2) 50%,
+                transparent 100%
+            );
+            transform: skewX(-25deg);
+            transition: none;
+        }
+
+        .download-btn:hover::after {
+            left: 150%;
+            transition: all 0.6s ease-in-out;
+        }
+
+        .download-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--blue);
+        }
+
+        .instruction-list { padding-left: 18px; margin: 10px 0; }
+        .instruction-list li { margin-bottom: 10px; font-size: 15px; }
+        
+        b { color: #fff; border-bottom: 1px solid var(--blue); }
+
+        .important-box {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="container">
+        <header>
+            <h1>Aura VPN Guide</h1>
+            <div class="subtitle">Пошаговое руководство по подключению</div>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="openTab(event, 'ios')">iPhone / iPad</div>
+            <div class="tab" onclick="openTab(event, 'android')">Android</div>
+            <div class="tab" onclick="openTab(event, 'windows')">Windows (ПК)</div>
+        </div>
+
+        <div id="ios" class="section active">
+            <div class="card">
+                <div class="step-header">
+                    <div class="step-badge">1</div>
+                    <div class="step-title">Установка приложения</div>
+                </div>
+                <div class="step-text">
+                    Скачайте и установите приложение <b>Happ - Proxy Utility</b> из App Store.
+                    <a href="https://apps.apple.com/us/app/happ-proxy-utility/id6504287215?l=ru" class="download-btn" target="_blank">
+                        <svg viewBox="0 0 384 512"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+                        Скачать из App Store
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="step-header">
+                    <div class="step-badge">2</div>
+                    <div class="step-title">Получение ключа</div>
+                </div>
+                <div class="step-text">
+                    Вернитесь в наш Telegram-бот и выполните действия:
+                    <ul class="instruction-list">
+                        <li>Нажмите кнопку <b>«Подключить бесплатно»</b></li>
+                        <li>Нажмите <b>«Показать ключ»</b></li>
+                        <li>Бот пришлет сообщение с кодом. <b>Нажмите на код</b> — он скопируется.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="step-header">
+                    <div class="step-badge">3</div>
+                    <div class="step-title">Активация</div>
+                </div>
+                <div class="step-text">
+                    1. Откройте приложение <b>Happ - Proxy Utility</b>.<br>
+                    2. В правом верхнем углу нажмите иконку <b>«+»</b>.<br>
+                    3. Выберите <b>«Вставить из буфера обмена»</b>.<br>
+                    4. Нажмите центральную кнопку <b>«Пуск»</b>.
+                </div>
+                
+                <div class="important-box">
+                    При первом включении iOS попросит <b>разрешить создание VPN-конфигурации</b>.
+                </div>
+            </div>
+        </div>
+
+        <div id="android" class="section">
+            <div class="card">
+                <div class="step-header">
+                    <div class="step-badge">1</div>
+                    <div class="step-title">Установка</div>
+                </div>
+                <div class="step-text">
+                    Установите рекомендуемое приложение <b>V2RayTun</b> из Google Play Store.
+                    <a href="https://play.google.com/store/apps/details?id=com.v2raytun.android" class="download-btn" target="_blank">
+                        <svg viewBox="0 0 512 512"><path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/></svg>
+                        Скачать из Google Play
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="step-header">
+                    <div class="step-badge">2</div>
+                    <div class="step-title">Ключ доступа</div>
+                </div>
+                <div class="step-text">
+                    Зайдите в бота, нажмите <b>«Показать ключ»</b> и <b>кликните на ссылку с кодом</b> для копирования.
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="step-header">
+                    <div class="step-badge">3</div>
+                    <div class="step-title">Подключение</div>
+                </div>
+                <div class="step-text">
+                    В приложении нажмите <b>«+»</b> вверху, выберите <b>«Импорт из буфера обмена</b>. Выберите появившуюся строку и нажмите кнопку подключения снизу.
+                </div>
+            </div>
+        </div>
+
+        <div id="windows" class="section">
+            <div class="card">
+                <div class="step-header">
+                    <div class="step-badge">1</div>
+                    <div class="step-title">Подготовка программы</div>
+                </div>
+                <div class="step-text">
+                    1. Скачайте архив приложения <b>NekoRay</b>.<br>
+                    2. Распакуйте архив и запустите <b>nekoBox.exe</b>.
+                    <a href="https://github.com/MatsuriDayo/nekoray/releases" class="download-btn" target="_blank">
+                        <svg viewBox="0 0 448 512"><path d="M0 93.7l183.6-25.3v177.4H0V93.7zm0 324.6l183.6 25.3V268.3H0v150zm203.8 28.1L448 480V268.3H203.8v178.1zm0-380.6v180.3H448V32L203.8 65.8z"/></svg>
+                        Скачать с GitHub (.zip)
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="step-header">
+                    <div class="step-badge">2</div>
+                    <div class="step-title">Добавление ключа</div>
+                </div>
+                <div class="step-text">
+                    Скопируйте ключ в боте. В NekoRay выберите: <br><br>
+                    <b>Программа → Вставить из буфера обмена</b>.
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="step-header">
+                    <div class="step-badge">3</div>
+                    <div class="step-title">Выбор режима</div>
+                </div>
+                <div class="step-text">
+                    В верхней части окна включите:
+                    <ul class="instruction-list">
+                        <li><b>TUN режим:</b> Весь трафик ПК (игры, софт). Нужны права админа.</li>
+                        <li><b>Системный прокси:</b> В основном для браузеров.</li>
+                    </ul>
+                    <b>Финал:</b> Клик правой кнопкой мыши на сервер → <b>«Запустить»</b>.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        function openTab(evt, tabName) {
+            const sections = document.getElementsByClassName("section");
+            for (let i = 0; i < sections.length; i++) {
+                sections[i].style.display = "none";
+                sections[i].classList.remove("active");
+            }
+            const tabs = document.getElementsByClassName("tab");
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove("active");
+            }
+            document.getElementById(tabName).style.display = "block";
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+            
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        }
+
+        window.onload = () => {
+            const platform = tg.platform;
+            if (platform === 'android') {
+                openTab({currentTarget: document.querySelectorAll('.tab')[1]}, 'android');
+            } else if (platform === 'ios') {
+                openTab({currentTarget: document.querySelectorAll('.tab')[0]}, 'ios');
+            }
+        };
+    </script>
+</body>
+</html>
